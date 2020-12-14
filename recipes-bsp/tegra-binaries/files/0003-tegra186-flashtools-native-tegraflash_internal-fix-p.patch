@@ -1,0 +1,82 @@
+From 5729f661824ee1f0d581defb2b5040f916ba187e Mon Sep 17 00:00:00 2001
+From: Jose Quaresma <quaresma.jose@gmail.com>
+Date: Mon, 14 Dec 2020 18:29:51 +0000
+Subject: [PATCH] tegraflash_internal fix with python 3.9.
+ xml_tree.getiterator
+
+methods getiterator have been removed on python 3.9.
+
+Methods getchildren() and getiterator() of classes :class:`~xml.etree.ElementTree.ElementTree`
+and :class:`~xml.etree.ElementTree.Element` in the :mod:`~xml.etree.ElementTree` module
+have been removed. They were deprecated in Python 3.2.
+Use iter(x) or list(x) instead of x.getchildren() and x.iter() or list(x.iter()) instead
+of x.getiterator(). (Contributed by Serhiy Storchaka in :issue:`36543`.)
+
+https://github.com/python/cpython/blob/master/Doc/whatsnew/3.9.rst
+
+Signed-off-by: Jose Quaresma <quaresma.jose@gmail.com>
+---
+ bootloader/tegraflash_internal.py | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/bootloader/tegraflash_internal.py b/bootloader/tegraflash_internal.py
+index ded51ba..17fd8a4 100644
+--- a/bootloader/tegraflash_internal.py
++++ b/bootloader/tegraflash_internal.py
+@@ -800,7 +800,7 @@ def tegraflash_t19x_encrypt_and_sign(cfg_file):
+              list_text = "signed_file"
+          else:
+              list_text = "encrypt_file"
+-         for file_nodes in xml_tree.getiterator('file'):
++         for file_nodes in xml_tree.iter('file'):
+              file_name = file_nodes.get('name')
+              file_type = file_nodes.get('type')
+              magic_id = tegraflash_get_magicid(file_type)
+@@ -1130,7 +1130,7 @@ def tegraflash_encrypt_and_copy_signed_binaries(xml_file, output_dir):
+     else:
+         list_text = "encrypt_file"
+ 
+-    for file_nodes in xml_tree.getiterator('file'):
++    for file_nodes in xml_tree.iter('file'):
+         file_name = file_nodes.get('name')
+         file_type = file_nodes.get('type')
+         signed_file = file_nodes.find(mode).get(list_text)
+@@ -1165,7 +1165,7 @@ def tegraflash_copy_signed_binaries(xml_file, output_dir):
+         else:
+             list_text = "encrypt_file"
+ 
+-    for file_nodes in xml_tree.getiterator('file'):
++    for file_nodes in xml_tree.iter('file'):
+         file_name = file_nodes.get('name')
+         signed_file = file_nodes.find(mode).get(list_text)
+         shutil.copyfile(signed_file, output_dir + "/" + os.path.basename(signed_file))
+@@ -1833,7 +1833,7 @@ def tegraflash_oem_encrypt_and_sign_file(in_file, header , magic_id):
+         sig_file = "hash"
+ 
+     signed_file = filename
+-    for file_nodes in xml_tree.getiterator('file'):
++    for file_nodes in xml_tree.iter('file'):
+         signed_file = file_nodes.find(mode).get(list_text)
+         sig_file = file_nodes.find(mode).get(sig_file)
+ 
+@@ -1915,7 +1915,7 @@ def tegraflash_t21x_sign_file(magicid, in_file):
+     #signed_file = filename
+ 
+    # signed_file = filename
+-    for file_nodes in xml_tree.getiterator('file'):
++    for file_nodes in xml_tree.iter('file'):
+         signed_file = file_nodes.find(mode).get(list_text)
+         sig_file = file_nodes.find(mode).get(sig_file)
+     if mode == "pkc":
+@@ -2031,7 +2031,7 @@ def tegraflas_oem_sign_file(in_file, magic_id):
+                 sig_file = "hash"
+ 
+     signed_file = filename
+-    for file_nodes in xml_tree.getiterator('file'):
++    for file_nodes in xml_tree.iter('file'):
+         signed_file = file_nodes.find(mode).get(list_text)
+         sig_file = file_nodes.find(mode).get(sig_file)
+ 
+-- 
+2.29.2
+
